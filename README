@@ -1,53 +1,63 @@
 
 NAME
-
-ngx_http_referer_host_module - implements $referer_host variable 
+    ngx_http_referer_host_module - implements $referer_host variable 
 
 SYNOPSIS
+	http {
 
-    http {
-
-	map $referer_host $valid {
-	    default          0;
-	    example.com      1;
-	    www.example.com  1;
-	}
-
-	map $referer_host $invalid {
-	    hostnames;
-	    default          1;
-	    .example.com     0;
-	}
-
-	...
-
-        server {
-
-	    location / {
-		if ($invalid) {
-		    return 403;
-		}
+	    map $referer_host $valid {
+		default          0;
+		example.com      1;
+		www.example.com  1;
 	    }
 
-            ...
-        }
-    }
+	    map $referer_host $invalid {
+		hostnames;
+		default          1;
+		.example.com     0;
+	    }
+
+	    ...
+
+	    server {
+
+		location / {
+		    if ($invalid) {
+			return 403;
+		    }
+		}
+
+		...
+	    }
+	}
 
 DESCRIPTION
+    A very simple module that parses http referer header and exports 
+    resulting hostname into $referer_host variable to use in nginx.conf.
 
-A very simple module that parses http referer header and exports resulting
-hostname into $referer_host variable to use in nginx.conf.
+    And just in case modifies referer header making its hostname part
+    lower-cased.
+
+    You can achieve something like this in nginx 0.9.6+ with map and pcre:
+
+	map $http_referer $referer_host {
+	    default "";
+	    ~^https?://(?<H>[^:/]+) $H;
+	}
 
 INSTALLATION
+    As usual for nginx modules:
 
-As usual for nginx modules:
-
-    ./configure --add-module=/path/to/ngx_http_referer_host_module ... 
-    make
-    make install
+	./configure --add-module=/path/to/ngx_http_referer_host_module ... 
+	make
+	make install
 
 AUTHOR
+    Alexandr Gomoliako <zzz@zzz.org.ua>
 
-Alexandr Gomoliako <zzz@cpan.org>
+LICENSE
+    Copyright 2011 Alexandr Gomoliako. All rights reserved.
 
+    This module is free software. It may be used, redistributed and/or 
+    modified under the terms described in LICENSE file.
 
